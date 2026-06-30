@@ -1,4 +1,4 @@
-package bf.digital.pilotage.security;
+package bf.digital.pilotage.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -24,7 +24,6 @@ public class JwtService {
     }
 
     public String generateToken(String username) {
-
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
@@ -34,31 +33,23 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-
         Claims claims = Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-
         return claims.getSubject();
     }
 
     public boolean isTokenValid(String token) {
-
         try {
-
             Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
                     .parseSignedClaims(token);
-
             return true;
-
         } catch (Exception e) {
-
             return false;
-
         }
     }
 }
