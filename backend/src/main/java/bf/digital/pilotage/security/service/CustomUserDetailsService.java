@@ -1,10 +1,15 @@
-package bf.digital.pilotage.security;
+package bf.digital.pilotage.security.service;
 
 import bf.digital.pilotage.entity.Utilisateur;
 import bf.digital.pilotage.repository.UtilisateurRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +25,23 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() ->
                         new UsernameNotFoundException("Utilisateur introuvable"));
 
+        Set<GrantedAuthority> authorities = new HashSet<>();
+
+        utilisateur.getRoles().forEach(role -> {
+            // Rôle utilisable avec hasRole("ADMIN") => préfixe ROLE_ obligatoire
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getNom()));
+
+            // Permissions utilisables avec hasAuthority("USER_CREATE")
+            role.getPermissions().forEach(permission ->
+                    authorities.add(new SimpleGrantedAuthority(permission.getNom()))
+            );
+        });
+
         return User.builder()
                 .username(utilisateur.getEmail())
                 .password(utilisateur.getMotDePasse())
-                .authorities("USER")
+                .disabled(!Boolean.TRUE.equals(utilisateur.getActif()))
+                .authorities(authorities)
                 .build();
     }
 }

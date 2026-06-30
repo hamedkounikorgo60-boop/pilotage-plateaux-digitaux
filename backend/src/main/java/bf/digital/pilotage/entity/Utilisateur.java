@@ -1,5 +1,6 @@
 package bf.digital.pilotage.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,4 +42,9 @@ public class Utilisateur extends BaseEntity {
     )
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plateau_id")
+    @JsonIgnore
+    private Plateau plateau;
 }

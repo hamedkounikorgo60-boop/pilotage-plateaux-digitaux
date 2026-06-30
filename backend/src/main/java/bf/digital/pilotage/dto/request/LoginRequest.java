@@ -1,6 +1,7 @@
-package bf.digital.pilotage.dto;
+package bf.digital.pilotage.dto.request;
 
 import lombok.Data;
+
 
 @Data
 public class LoginRequest {
