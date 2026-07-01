@@ -35,6 +35,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserResponse> getUsersByRole(String role) {
+        return utilisateurRepository.findByRoleNom(role.toUpperCase()).stream()
+                .map(mapper::toResponse)
+                .toList();
+    }
+
+    @Override
     public UserResponse getUserById(Long id) {
         return mapper.toResponse(findUserOrThrow(id));
     }

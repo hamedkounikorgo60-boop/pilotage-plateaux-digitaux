@@ -26,7 +26,11 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('USER_READ')")
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
+    public ResponseEntity<List<UserResponse>> getAllUsers(
+            @RequestParam(required = false) String role) {
+        if (role != null && !role.isBlank()) {
+            return ResponseEntity.ok(userService.getUsersByRole(role));
+        }
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
