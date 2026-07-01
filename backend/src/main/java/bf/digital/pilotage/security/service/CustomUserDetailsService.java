@@ -27,15 +27,15 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         Set<GrantedAuthority> authorities = new HashSet<>();
 
-        utilisateur.getRoles().forEach(role -> {
-            // Rôle utilisable avec hasRole("ADMIN") => préfixe ROLE_ obligatoire
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getNom()));
+        if (utilisateur.getRole() != null) {
+            // Rôle → hasRole("ADMIN")
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + utilisateur.getRole().getNom()));
 
-            // Permissions utilisables avec hasAuthority("USER_CREATE")
-            role.getPermissions().forEach(permission ->
+            // Permissions → hasAuthority("USER_CREATE")
+            utilisateur.getRole().getPermissions().forEach(permission ->
                     authorities.add(new SimpleGrantedAuthority(permission.getNom()))
             );
-        });
+        }
 
         return User.builder()
                 .username(utilisateur.getEmail())

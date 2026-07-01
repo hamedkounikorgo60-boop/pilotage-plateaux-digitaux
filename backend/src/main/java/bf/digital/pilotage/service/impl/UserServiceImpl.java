@@ -16,9 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -50,9 +48,6 @@ public class UserServiceImpl implements UserService {
         Role role = roleRepository.findByNom(request.getRole())
                 .orElseThrow(() -> new BadRequestException("Rôle inconnu : " + request.getRole()));
 
-        Set<Role> roles = new HashSet<>();
-        roles.add(role);
-
         Utilisateur utilisateur = Utilisateur.builder()
                 .nom(request.getNom())
                 .prenom(request.getPrenom())
@@ -60,7 +55,7 @@ public class UserServiceImpl implements UserService {
                 .telephone(request.getTelephone())
                 .motDePasse(passwordEncoder.encode(request.getMotDePasse()))
                 .actif(true)
-                .roles(roles)
+                .role(role)
                 .build();
 
         return mapper.toResponse(utilisateurRepository.save(utilisateur));
@@ -77,8 +72,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-        Utilisateur utilisateur = findUserOrThrow(id);
-        utilisateurRepository.delete(utilisateur);
+        utilisateurRepository.delete(findUserOrThrow(id));
     }
 
     @Override

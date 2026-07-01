@@ -1,43 +1,51 @@
 package bf.digital.pilotage.controller;
 
-import bf.digital.pilotage.dto.request.AssignPermissionsRequest;
-import bf.digital.pilotage.dto.request.AssignRoleRequest;
-import bf.digital.pilotage.dto.response.RoleResponse;
+import bf.digital.pilotage.dto.request.RoleRequest;
+import bf.digital.pilotage.entity.Role;
 import bf.digital.pilotage.service.role.RoleService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/roles")
 @RequiredArgsConstructor
-@Tag(name = "Rôles", description = "Gestion des rôles")
 public class RoleController {
 
     private final RoleService roleService;
 
-    @GetMapping("/api/roles")
-    @PreAuthorize("hasAuthority('USER_READ')")
-    public ResponseEntity<List<RoleResponse>> getAllRoles() {
-        return ResponseEntity.ok(roleService.getAllRoles());
+    @GetMapping
+    public ResponseEntity<List<Role>> getAllRoles() {
+        return ResponseEntity.ok(roleService.findAll());
     }
 
-    @PutMapping("/api/users/{id}/role")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> assignRoleToUser(@PathVariable Long id,
-                                                   @Valid @RequestBody AssignRoleRequest request) {
-        roleService.assignRoleToUser(id, request);
+    @GetMapping("/{id}")
+    public ResponseEntity<Role> getRole(@PathVariable Long id) {
+        return ResponseEntity.ok(roleService.findById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<Role> create(@RequestBody RoleRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(roleService.create(request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Role> update(
+            @PathVariable Long id,
+            @RequestBody RoleRequest request) {
+
+        return ResponseEntity.ok(roleService.update(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+
+        roleService.delete(id);
+
         return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/api/roles/{id}/permissions")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RoleResponse> assignPermissionsToRole(@PathVariable Long id,
-                                                                   @Valid @RequestBody AssignPermissionsRequest request) {
-        return ResponseEntity.ok(roleService.assignPermissionsToRole(id, request));
     }
 }

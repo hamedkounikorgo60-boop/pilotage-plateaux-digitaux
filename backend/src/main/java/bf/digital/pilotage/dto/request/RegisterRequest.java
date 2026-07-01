@@ -2,7 +2,6 @@ package bf.digital.pilotage.dto.request;
 
 import lombok.Data;
 
-
 @Data
 public class RegisterRequest {
 
@@ -15,5 +14,8 @@ public class RegisterRequest {
     private String telephone;
 
     private String motDePasse;
+
+    // rôle choisi lors de l'inscription
+    private Long roleId;
 
 }

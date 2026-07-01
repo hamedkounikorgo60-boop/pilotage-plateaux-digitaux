@@ -1,13 +1,20 @@
 package bf.digital.pilotage.service.role;
 
-import bf.digital.pilotage.dto.request.AssignPermissionsRequest;
-import bf.digital.pilotage.dto.request.AssignRoleRequest;
-import bf.digital.pilotage.dto.response.RoleResponse;
+import bf.digital.pilotage.dto.request.RoleRequest;
+import bf.digital.pilotage.entity.Role;
 
 import java.util.List;
 
 public interface RoleService {
-    List<RoleResponse> getAllRoles();
-    void assignRoleToUser(Long userId, AssignRoleRequest request);
-    RoleResponse assignPermissionsToRole(Long roleId, AssignPermissionsRequest request);
+
+    List<Role> findAll();
+
+    Role findById(Long id);
+
+    Role create(RoleRequest request);
+
+    Role update(Long id, RoleRequest request);
+
+    void delete(Long id);
+
 }

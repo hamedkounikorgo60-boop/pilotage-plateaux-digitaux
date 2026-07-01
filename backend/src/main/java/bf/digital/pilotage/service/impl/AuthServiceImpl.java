@@ -20,8 +20,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,9 +43,6 @@ public class AuthServiceImpl implements AuthService {
         Role roleMembre = roleRepository.findByNom("MEMBRE")
                 .orElseThrow(() -> new BadRequestException("Le rôle MEMBRE n'existe pas en base."));
 
-        Set<Role> roles = new HashSet<>();
-        roles.add(roleMembre);
-
         Utilisateur utilisateur = Utilisateur.builder()
                 .nom(request.getNom())
                 .prenom(request.getPrenom())
@@ -53,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
                 .telephone(request.getTelephone())
                 .motDePasse(passwordEncoder.encode(request.getMotDePasse()))
                 .actif(true)
-                .roles(roles)
+                .role(roleMembre)
                 .build();
 
         Utilisateur saved = utilisateurRepository.save(utilisateur);
@@ -73,10 +70,24 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtService.generateToken(utilisateur.getEmail());
         RefreshToken refreshToken = refreshTokenService.creer(utilisateur);
 
+        Role role = utilisateur.getRole();
+        Set<String> permissions = role != null
+                ? role.getPermissions().stream()
+                        .map(p -> p.getNom())
+                        .collect(Collectors.toSet())
+                : Set.of();
+
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken())
                 .type("Bearer")
+                .userId(utilisateur.getId())
+                .nom(utilisateur.getNom())
+                .prenom(utilisateur.getPrenom())
+                .email(utilisateur.getEmail())
+                .role(role != null ? role.getNom() : null)
+                .roleId(role != null ? role.getId() : null)
+                .permissions(permissions)
                 .build();
     }
 
@@ -88,10 +99,24 @@ public class AuthServiceImpl implements AuthService {
         String nouveauAccessToken = jwtService.generateToken(utilisateur.getEmail());
         RefreshToken nouveauRefreshToken = refreshTokenService.creer(utilisateur);
 
+        Role role = utilisateur.getRole();
+        Set<String> permissions = role != null
+                ? role.getPermissions().stream()
+                        .map(p -> p.getNom())
+                        .collect(Collectors.toSet())
+                : Set.of();
+
         return LoginResponse.builder()
                 .accessToken(nouveauAccessToken)
                 .refreshToken(nouveauRefreshToken.getToken())
                 .type("Bearer")
+                .userId(utilisateur.getId())
+                .nom(utilisateur.getNom())
+                .prenom(utilisateur.getPrenom())
+                .email(utilisateur.getEmail())
+                .role(role != null ? role.getNom() : null)
+                .roleId(role != null ? role.getId() : null)
+                .permissions(permissions)
                 .build();
     }
 }
